@@ -1,5 +1,5 @@
 {
-	"name": "svelte-split-pane",
+	"name": "@rich_harris/svelte-split-pane",
 	"version": "1.0.0",
 	"scripts": {
 		"dev": "vite dev",

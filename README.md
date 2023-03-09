@@ -6,7 +6,7 @@ A `<SplitPane>` component.
 
 ```svelte
 <script>
-  import { SplitPane } from 'svelte-split-pane';
+  import { SplitPane } from '@rich_harris/svelte-split-pane';
 
   const dividerColor = 'black';
   const dividerThickness = '20px';
