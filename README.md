@@ -1,58 +1,35 @@
-# create-svelte
+# svelte-split-pane
 
-Everything you need to build a Svelte library, powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/master/packages/create-svelte).
+A `<SplitPane>` component.
 
-Read more about creating a library [in the docs](https://kit.svelte.dev/docs/packaging).
+## Usage
 
-## Creating a project
+```svelte
+<script>
+  import { SplitPane } from 'svelte-split-pane';
 
-If you're seeing this, you've probably already done this step. Congrats!
+  const dividerColor = 'black';
+  const dividerThickness = '20px';
+</script>
 
-```bash
-# create a new project in the current directory
-npm create svelte@latest
-
-# create a new project in my-app
-npm create svelte@latest my-app
+<SplitPane
+  type="horizontal"
+  min="100px"
+  max="-100px"
+  pos="50%"
+  priority="min"
+  --color={dividerColor}
+  --thickness={dividerThickness}
+>
+  <section slot="a">this is on the left</section>
+  <section slot="b">this is on the right</section>
+</SplitPane>
 ```
 
-## Developing
+Of the properties that can be set on the component, only `type` is required:
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
-
-```bash
-npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
-```
-
-Everything inside `src/lib` is part of your library, everything inside `src/routes` can be used as a showcase or preview app.
-
-## Building
-
-To build your library:
-
-```bash
-npm run package
-```
-
-To create a production version of your showcase app:
-
-```bash
-npm run build
-```
-
-You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
-
-## Publishing
-
-Go into the `package.json` and give your package the desired name through the `"name"` option. Also consider adding a `"license"` field and point it to a `LICENSE` file which you can create from a template (one popular option is the [MIT license](https://opensource.org/license/mit/)).
-
-To publish your library to [npm](https://www.npmjs.com):
-
-```bash
-npm publish
-```
+- `type` can be `horizontal`, in which case the panes will be split left-right, or `vertical` in which case it will be split top-bottom
+- `min`, `max` and `pos` can be expressed as `${number}%` or `${number}px`. Positive numbers are measured from the left/top, negative numbers are measured from the right/bottom
+- `priority` determines whether the `min` or `max` constraint wins in cases where they conflict
+- `--color` determines the color of the divider between panes, and defaults to `transparent`
+- `--thickness` determines how thick the 'hit area' is for the divider, and defaults to `8px`
