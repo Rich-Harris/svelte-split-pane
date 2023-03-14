@@ -27,7 +27,8 @@
 	let dragging = false;
 	let w = 0;
 	let h = 0;
-	let position = pos;
+
+	$: position = pos;
 
 	// constrain position
 	$: if (container) {
