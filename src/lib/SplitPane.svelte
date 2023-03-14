@@ -4,6 +4,9 @@
 
 	const dispatch = createEventDispatcher();
 
+	/** @type {string | undefined} */
+	export let id = undefined;
+
 	/** @type {'horizontal' | 'vertical'} */
 	export let type;
 
@@ -128,6 +131,7 @@
 </script>
 
 <div
+	data-pane={id}
 	class="container {type}"
 	bind:this={container}
 	bind:clientWidth={w}
