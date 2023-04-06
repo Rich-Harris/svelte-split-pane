@@ -36,7 +36,7 @@
 	// constrain position
 	$: if (container) {
 		const size = type === 'horizontal' ? w : h;
-		position = constrain(size, min, max, position, priority);
+		position = constrain(container, size, min, max, position, priority);
 	}
 
 	/**
