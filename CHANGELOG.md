@@ -1,5 +1,9 @@
 # changelog
 
+## 1.1.0
+
+- Allow `em` and `rem` lengths
+
 ## 1.0.2
 
 - Expose an `id` property for CSS overrides

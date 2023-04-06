@@ -31,7 +31,7 @@ Of the properties that can be set on the component, only `type` is required:
 
 - `type` can be `horizontal`, in which case the panes will be split left-right, or `vertical` in which case it will be split top-bottom
 - `id` will be added to the element as a `data-pane={id}` attribute, allowing you to (for example) override the `--pos` CSS custom property on mobile
-- `min`, `max` and `pos` can be expressed as `${number}%` or `${number}px`. Positive numbers are measured from the left/top, negative numbers are measured from the right/bottom
+- `min`, `max` and `pos` can be expressed as `${number}%`, `${number}px`, `${number}em` or `${number}rem`. Positive numbers are measured from the left/top, negative numbers are measured from the right/bottom
 - `priority` determines whether the `min` or `max` constraint wins in cases where they conflict
 - `--color` determines the color of the divider between panes, and defaults to `transparent`
 - `--thickness` determines how thick the 'hit area' is for the divider, and defaults to `8px`
