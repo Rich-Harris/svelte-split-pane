@@ -2,6 +2,7 @@
 	import { createEventDispatcher } from 'svelte';
 	import { constrain } from './utils.js';
 
+	/** @type {ReturnType<typeof createEventDispatcher<{ change: undefined }>>} */
 	const dispatch = createEventDispatcher();
 
 	/** @type {string | undefined} */
@@ -58,73 +59,42 @@
 
 	/**
 	 * @param {HTMLElement} node
-	 * @param {(event: MouseEvent) => void} callback
+	 * @param {(event: PointerEvent) => void} callback
 	 */
 	function drag(node, callback) {
-		/** @param {MouseEvent} event */
-		const mousedown = (event) => {
-			if (event.button !== 0) return;
+		/** @param {PointerEvent} event */
+		const pointerdown = (event) => {
+			console.log(event.pointerType, event.button, event.isPrimary);
+			if (
+				(event.pointerType === 'mouse' && event.button === 2) ||
+				(event.pointerType !== 'mouse' && !event.isPrimary)
+			)
+				return;
+
+			node.setPointerCapture(event.pointerId);
 
 			event.preventDefault();
 
 			dragging = true;
 
-			const onmouseup = () => {
+			const onpointerup = () => {
 				dragging = false;
 
-				window.removeEventListener('mousemove', callback, false);
-				window.removeEventListener('mouseup', onmouseup, false);
+				node.setPointerCapture(event.pointerId);
+
+				window.removeEventListener('pointermove', callback, false);
+				window.removeEventListener('pointerup', onpointerup, false);
 			};
 
-			window.addEventListener('mousemove', callback, false);
-			window.addEventListener('mouseup', onmouseup, false);
+			window.addEventListener('pointermove', callback, false);
+			window.addEventListener('pointerup', onpointerup, false);
 		};
 
-		node.addEventListener('mousedown', mousedown, false);
+		node.addEventListener('pointerdown', pointerdown, { capture: true, passive: false });
 
 		return {
 			destroy() {
-				node.removeEventListener('mousedown', mousedown, false);
-			}
-		};
-	}
-
-	/**
-	 * @param {HTMLElement} node
-	 * @param {(event: TouchEvent) => void} callback
-	 */
-	function touchDrag(node, callback) {
-		/** @param {TouchEvent} event */
-		const touchdown = (event) => {
-			if (event.targetTouches.length > 1) return;
-
-			event.preventDefault();
-
-			dragging = true;
-
-			const ontouchend = () => {
-				dragging = false;
-
-				window.removeEventListener('touchmove', callback, false);
-				window.removeEventListener('touchend', ontouchend, false);
-			};
-
-			window.addEventListener('touchmove', callback, false);
-			window.addEventListener('touchend', ontouchend, false);
-		};
-
-		node.addEventListener('touchstart', touchdown, {
-			capture: true,
-			passive: false
-		});
-
-		return {
-			destroy() {
-				// @ts-expect-error TypeScript doesn't understand modern DOM event options, apparently
-				node.removeEventListener('touchstart', touchdown, {
-					capture: true,
-					passive: false
-				});
+				node.removeEventListener('pointerdown', pointerdown);
 			}
 		};
 	}
@@ -147,12 +117,7 @@
 	</div>
 
 	{#if pos !== '0%' && pos !== '100%'}
-		<div
-			class="{type} divider"
-			class:disabled
-			use:drag={(e) => update(e.clientX, e.clientY)}
-			use:touchDrag={(e) => update(e.touches[0].clientX, e.touches[0].clientY)}
-		/>
+		<div class="{type} divider" class:disabled use:drag={(e) => update(e.clientX, e.clientY)} />
 	{/if}
 </div>
 
@@ -202,6 +167,7 @@
 	.divider {
 		position: absolute;
 		z-index: 10;
+		touch-action: none !important;
 	}
 
 	.divider::after {
