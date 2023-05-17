@@ -64,7 +64,6 @@
 	function drag(node, callback) {
 		/** @param {PointerEvent} event */
 		const pointerdown = (event) => {
-			console.log(event.pointerType, event.button, event.isPrimary);
 			if (
 				(event.pointerType === 'mouse' && event.button === 2) ||
 				(event.pointerType !== 'mouse' && !event.isPrimary)
