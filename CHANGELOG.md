@@ -1,5 +1,9 @@
 # changelog
 
+## 1.1.1
+
+- Use pointer events instead of separate mouse/touch events
+
 ## 1.1.0
 
 - Allow `em` and `rem` lengths
