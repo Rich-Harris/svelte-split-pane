@@ -165,7 +165,6 @@
 
 	.divider {
 		position: absolute;
-		z-index: 10;
 		touch-action: none !important;
 	}
 
