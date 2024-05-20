@@ -116,12 +116,12 @@
 	</div>
 
 	{#if pos !== '0%' && pos !== '100%'}
-		<div class="{type} divider" class:disabled use:drag={(e) => update(e.clientX, e.clientY)} />
+		<div class="{type} divider" class:disabled use:drag={(e) => update(e.clientX, e.clientY)}></div>
 	{/if}
 </div>
 
 {#if dragging}
-	<div class="mousecatcher" />
+	<div class="mousecatcher"></div>
 {/if}
 
 <style>
