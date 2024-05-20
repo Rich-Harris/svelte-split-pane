@@ -1,5 +1,9 @@
 # changelog
 
+## 1.1.3
+
+- Remove `z-index` from dividers
+
 ## 1.1.2
 
 - Mark as compatible with Svelte 4 and 5
