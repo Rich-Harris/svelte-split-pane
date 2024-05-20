@@ -1,5 +1,9 @@
 # changelog
 
+## 1.1.2
+
+- Mark as compatible with Svelte 4 and 5
+
 ## 1.1.1
 
 - Use pointer events instead of separate mouse/touch events
