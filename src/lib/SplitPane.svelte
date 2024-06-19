@@ -101,31 +101,31 @@
 
 <div
 	data-pane={id}
-	class="container {type}"
+	class="split-pane-container split-pane-{type}"
 	bind:this={container}
 	bind:clientWidth={w}
 	bind:clientHeight={h}
 	style="--pos: {position}"
 >
-	<div class="pane">
+	<div class="split-pane">
 		<slot name="a" />
 	</div>
 
-	<div class="pane">
+	<div class="split-pane">
 		<slot name="b" />
 	</div>
 
 	{#if pos !== '0%' && pos !== '100%'}
-		<div class="{type} divider" class:disabled use:drag={(e) => update(e.clientX, e.clientY)}></div>
+		<div class="split-pane-{type} split-pane-divider" class:disabled use:drag={(e) => update(e.clientX, e.clientY)}></div>
 	{/if}
 </div>
 
 {#if dragging}
-	<div class="mousecatcher"></div>
+	<div class="split-pane-mousecatcher"></div>
 {/if}
 
 <style>
-	.container {
+	.split-pane-container {
 		--sp-thickness: var(--thickness, 8px);
 		--sp-color: var(--color, transparent);
 		display: grid;
@@ -134,27 +134,27 @@
 		height: 100%;
 	}
 
-	.container.vertical {
+	.split-pane-container.split-pane-vertical {
 		grid-template-rows: var(--pos) 1fr;
 	}
 
-	.container.horizontal {
+	.split-pane-container.split-pane-horizontal {
 		grid-template-columns: var(--pos) 1fr;
 	}
 
-	.pane {
+	.split-pane {
 		width: 100%;
 		height: 100%;
 		overflow: auto;
 	}
 
-	.pane > :global(*) {
+	.split-pane > :global(*) {
 		width: 100%;
 		height: 100%;
 		overflow: hidden;
 	}
 
-	.mousecatcher {
+	.split-pane-mousecatcher {
 		position: absolute;
 		left: 0;
 		top: 0;
@@ -163,18 +163,18 @@
 		background: rgba(255, 255, 255, 0.0001);
 	}
 
-	.divider {
+	.split-pane-divider {
 		position: absolute;
 		touch-action: none !important;
 	}
 
-	.divider::after {
+	.split-pane-divider::after {
 		content: '';
 		position: absolute;
 		background-color: var(--sp-color);
 	}
 
-	.horizontal > .divider {
+	.split-pane-horizontal > .split-pane-divider {
 		padding: 0 calc(0.5 * var(--sp-thickness));
 		width: 0;
 		height: 100%;
@@ -183,18 +183,18 @@
 		transform: translate(calc(-0.5 * var(--sp-thickness)), 0);
 	}
 
-	.horizontal > .divider.disabled {
+	.split-pane-horizontal > .split-pane-divider.disabled {
 		cursor: default;
 	}
 
-	.horizontal > .divider::after {
+	.split-pane-horizontal > .split-pane-divider::after {
 		left: 50%;
 		top: 0;
 		width: 1px;
 		height: 100%;
 	}
 
-	.vertical > .divider {
+	.split-pane-vertical > .split-pane-divider {
 		padding: calc(0.5 * var(--sp-thickness)) 0;
 		width: 100%;
 		height: 0;
@@ -203,11 +203,11 @@
 		transform: translate(0, calc(-0.5 * var(--sp-thickness)));
 	}
 
-	.vertical > .divider.disabled {
+	.split-pane-vertical > .split-pane-divider.disabled {
 		cursor: default;
 	}
 
-	.vertical > .divider::after {
+	.split-pane-vertical > .split-pane-divider::after {
 		top: 50%;
 		left: 0;
 		width: 100%;
