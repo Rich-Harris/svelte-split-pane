@@ -8,22 +8,30 @@
 	</header>
 	<main>
 		<SplitPane type="horizontal" min="25%" max="50%" pos="50%" --color="black">
-			<section slot="a" style="background: palegoldenrod">
-				<SplitPane type="vertical" min="100px" max="-100px" pos="50%">
-					<section slot="a">
-						<div class="pane">
-							<p>min width 25%</p>
-							<p>min height 100px</p>
-						</div>
-					</section>
-					<section slot="b" style="background: orange">
-						<!---->
-					</section>
-				</SplitPane>
-			</section>
-			<section slot="b" style="background: teal">
-				<!---->
-			</section>
+			{#snippet a()}
+						<section  style="background: palegoldenrod">
+					<SplitPane type="vertical" min="100px" max="-100px" pos="50%">
+						{#snippet a()}
+										<section >
+								<div class="pane">
+									<p>min width 25%</p>
+									<p>min height 100px</p>
+								</div>
+							</section>
+									{/snippet}
+						{#snippet b()}
+										<section  style="background: orange">
+								<!---->
+							</section>
+									{/snippet}
+					</SplitPane>
+				</section>
+					{/snippet}
+			{#snippet b()}
+						<section  style="background: teal">
+					<!---->
+				</section>
+					{/snippet}
 		</SplitPane>
 	</main>
 </div>

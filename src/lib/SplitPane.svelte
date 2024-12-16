@@ -1,50 +1,56 @@
-<script>
+<script lang="ts">
 	import { createEventDispatcher } from 'svelte';
 	import { constrain } from './utils.js';
+	import type { Length } from './types';
 
 	/** @type {ReturnType<typeof createEventDispatcher<{ change: undefined }>>} */
 	const dispatch = createEventDispatcher();
 
-	/** @type {string | undefined} */
-	export let id = undefined;
-
-	/** @type {'horizontal' | 'vertical'} */
-	export let type;
-
-	/** @type {import('./types').Length} */
-	export let pos = '50%';
-
-	/** @type {import('./types').Length} */
-	export let min = '0%';
-
-	/** @type {import('./types').Length} */
-	export let max = '100%';
-
-	export let disabled = false;
-
-	/** @type {'min' | 'max'}*/
-	export let priority = 'min';
-
-	/** @type {HTMLElement} */
-	let container;
-
-	let dragging = false;
-	let w = 0;
-	let h = 0;
-
-	$: position = pos;
-
-	// constrain position
-	$: if (container) {
-		const size = type === 'horizontal' ? w : h;
-		position = constrain(container, size, min, max, position, priority);
+	interface Props {
+		type: 'horizontal' | 'vertical';
+		id?: string | undefined;
+		pos?: Length;
+		min?: Length;
+		max?: Length;
+		disabled?: boolean;
+		priority?: 'min' | 'max';
+		a?: import('svelte').Snippet;
+		b?: import('svelte').Snippet;
 	}
 
-	/**
-	 * @param {number} x
-	 * @param {number} y
-	 */
-	function update(x, y) {
+	let {
+		id = undefined,
+		type,
+		pos = '50%',
+		min = '0%',
+		max = '100%',
+		disabled = false,
+		priority = 'min',
+		a,
+		b
+	}: Props = $props();
+
+	let container: HTMLElement;
+
+	let dragging = $state(false);
+	let w = $state(0);
+	let h = $state(0);
+
+	let position = $state<Length>(pos);
+
+	$inspect({ pos, position });
+
+	$effect(() => {
+		position = pos;
+	});
+
+	// constrain position
+	$effect(() => {
+		const size = type === 'horizontal' ? w : h;
+		position = constrain(container, size, min, max, position, priority);
+	});
+
+	function update(x: number, y: number) {
 		if (disabled) return;
 
 		const { top, left } = container.getBoundingClientRect();
@@ -57,13 +63,8 @@
 		dispatch('change');
 	}
 
-	/**
-	 * @param {HTMLElement} node
-	 * @param {(event: PointerEvent) => void} callback
-	 */
-	function drag(node, callback) {
-		/** @param {PointerEvent} event */
-		const pointerdown = (event) => {
+	function drag(node: HTMLElement, callback: (event: PointerEvent) => void) {
+		const pointerdown = (event: PointerEvent) => {
 			if (
 				(event.pointerType === 'mouse' && event.button === 2) ||
 				(event.pointerType !== 'mouse' && !event.isPrimary)
@@ -108,11 +109,11 @@
 	style="--pos: {position}"
 >
 	<div class="pane">
-		<slot name="a" />
+		{@render a?.()}
 	</div>
 
 	<div class="pane">
-		<slot name="b" />
+		{@render b?.()}
 	</div>
 
 	{#if pos !== '0%' && pos !== '100%'}
