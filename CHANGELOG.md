@@ -2,9 +2,7 @@
 
 ## 2.0.0
 
-- Require Svelte 5
-- Use CSS `clamp(...)` rather than constraining programmatically
-- Remove `priority` prop and `change` event
+- Modernise ([#8](https://github.com/Rich-Harris/svelte-split-pane/pull/8)
 
 ## 1.1.3
 
