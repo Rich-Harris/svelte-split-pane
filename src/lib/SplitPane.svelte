@@ -1,74 +1,62 @@
-<script>
-	import { createEventDispatcher } from 'svelte';
-	import { constrain } from './utils.js';
+<script lang="ts">
+	import type { Snippet } from 'svelte';
+	import type { Length } from './types';
 
-	/** @type {ReturnType<typeof createEventDispatcher<{ change: undefined }>>} */
-	const dispatch = createEventDispatcher();
-
-	/** @type {string | undefined} */
-	export let id = undefined;
-
-	/** @type {'horizontal' | 'vertical'} */
-	export let type;
-
-	/** @type {import('./types').Length} */
-	export let pos = '50%';
-
-	/** @type {import('./types').Length} */
-	export let min = '0%';
-
-	/** @type {import('./types').Length} */
-	export let max = '100%';
-
-	export let disabled = false;
-
-	/** @type {'min' | 'max'}*/
-	export let priority = 'min';
-
-	/** @type {HTMLElement} */
-	let container;
-
-	let dragging = false;
-	let w = 0;
-	let h = 0;
-
-	$: position = pos;
-
-	// constrain position
-	$: if (container) {
-		const size = type === 'horizontal' ? w : h;
-		position = constrain(container, size, min, max, position, priority);
+	interface Props {
+		type: 'horizontal' | 'vertical';
+		id?: string | undefined;
+		pos?: Length;
+		min?: Length;
+		max?: Length;
+		disabled?: boolean;
+		a?: Snippet;
+		b?: Snippet;
 	}
 
-	/**
-	 * @param {number} x
-	 * @param {number} y
-	 */
-	function update(x, y) {
+	let {
+		id = undefined,
+		type,
+		pos = $bindable('50%'),
+		min = '0%',
+		max = '100%',
+		disabled = false,
+		a,
+		b
+	}: Props = $props();
+
+	let container: HTMLElement;
+
+	let dragging = $state(false);
+
+	function normalize(length: string) {
+		if (length[0] === '-') {
+			return `calc(100% - ${length.slice(1)})`;
+		}
+
+		return length;
+	}
+
+	function update(x: number, y: number) {
 		if (disabled) return;
 
-		const { top, left } = container.getBoundingClientRect();
+		const { top, left, width, height } = container.getBoundingClientRect();
 
-		const pos_px = type === 'horizontal' ? x - left : y - top;
-		const size = type === 'horizontal' ? w : h;
+		let p = type === 'horizontal' ? (x - left) / width : (y - top) / height;
 
-		position = pos.endsWith('%') ? `${(100 * pos_px) / size}%` : `${pos_px}px`;
+		if (p < 0) p = 0;
+		if (p > 1) p = 1;
 
-		dispatch('change');
+		pos = `${100 * p}%`;
 	}
 
-	/**
-	 * @param {HTMLElement} node
-	 * @param {(event: PointerEvent) => void} callback
-	 */
-	function drag(node, callback) {
-		/** @param {PointerEvent} event */
-		const pointerdown = (event) => {
+	function drag(node: HTMLElement, callback: (event: PointerEvent) => void) {
+		const pointerdown = (event: PointerEvent) => {
 			if (
 				(event.pointerType === 'mouse' && event.button === 2) ||
 				(event.pointerType !== 'mouse' && !event.isPrimary)
-			)
+			) {
 				return;
+			}
 
 			node.setPointerCapture(event.pointerId);
 
@@ -89,43 +77,40 @@
 			window.addEventListener('pointerup', onpointerup, false);
 		};
 
-		node.addEventListener('pointerdown', pointerdown, { capture: true, passive: false });
+		$effect(() => {
+			node.addEventListener('pointerdown', pointerdown, { capture: true, passive: false });
 
-		return {
-			destroy() {
+			return () => {
 				node.removeEventListener('pointerdown', pointerdown);
-			}
-		};
+			};
+		});
 	}
 </script>
 
-<div
-	data-pane={id}
-	class="container {type}"
+<svelte-split-pane
 	bind:this={container}
-	bind:clientWidth={w}
-	bind:clientHeight={h}
-	style="--pos: {position}"
+	data-pane={id}
+	data-orientation={type}
+	style="--pos: {normalize(pos)}; --min: {normalize(min)}; --max: {normalize(max)}"
 >
-	<div class="pane">
-		<slot name="a" />
-	</div>
+	<svelte-split-pane-section>
+		{@render a?.()}
+	</svelte-split-pane-section>
 
-	<div class="pane">
-		<slot name="b" />
-	</div>
+	<svelte-split-pane-section>
+		{@render b?.()}
+	</svelte-split-pane-section>
 
-	{#if pos !== '0%' && pos !== '100%'}
-		<div class="{type} divider" class:disabled use:drag={(e) => update(e.clientX, e.clientY)}></div>
-	{/if}
-</div>
+	<svelte-split-pane-divider class:disabled use:drag={(e) => update(e.clientX, e.clientY)}
+	></svelte-split-pane-divider>
+</svelte-split-pane>
 
 {#if dragging}
-	<div class="mousecatcher"></div>
+	<svelte-split-pane-mousecatcher></svelte-split-pane-mousecatcher>
 {/if}
 
 <style>
-	.container {
+	svelte-split-pane {
 		--sp-thickness: var(--thickness, 8px);
 		--sp-color: var(--color, transparent);
 		display: grid;
@@ -134,27 +119,27 @@
 		height: 100%;
 	}
 
-	.container.vertical {
-		grid-template-rows: var(--pos) 1fr;
+	svelte-split-pane[data-orientation='vertical'] {
+		grid-template-rows: clamp(var(--min), var(--pos), var(--max)) 1fr;
 	}
 
-	.container.horizontal {
-		grid-template-columns: var(--pos) 1fr;
+	svelte-split-pane[data-orientation='horizontal'] {
+		grid-template-columns: clamp(var(--min), var(--pos), var(--max)) 1fr;
 	}
 
-	.pane {
+	svelte-split-pane-section {
 		width: 100%;
 		height: 100%;
 		overflow: auto;
 	}
 
-	.pane > :global(*) {
+	svelte-split-pane-section > :global(*) {
 		width: 100%;
 		height: 100%;
 		overflow: hidden;
 	}
 
-	.mousecatcher {
+	svelte-split-pane-mousecatcher {
 		position: absolute;
 		left: 0;
 		top: 0;
@@ -163,51 +148,51 @@
 		background: rgba(255, 255, 255, 0.0001);
 	}
 
-	.divider {
+	svelte-split-pane-divider {
 		position: absolute;
 		touch-action: none !important;
 	}
 
-	.divider::after {
+	svelte-split-pane-divider::after {
 		content: '';
 		position: absolute;
 		background-color: var(--sp-color);
 	}
 
-	.horizontal > .divider {
+	[data-orientation='horizontal'] > svelte-split-pane-divider {
 		padding: 0 calc(0.5 * var(--sp-thickness));
 		width: 0;
 		height: 100%;
 		cursor: ew-resize;
-		left: var(--pos);
+		left: clamp(var(--min), var(--pos), var(--max));
 		transform: translate(calc(-0.5 * var(--sp-thickness)), 0);
 	}
 
-	.horizontal > .divider.disabled {
+	[data-orientation='horizontal'] > svelte-split-pane-divider.disabled {
 		cursor: default;
 	}
 
-	.horizontal > .divider::after {
+	[data-orientation='horizontal'] > svelte-split-pane-divider::after {
 		left: 50%;
 		top: 0;
 		width: 1px;
 		height: 100%;
 	}
 
-	.vertical > .divider {
+	[data-orientation='vertical'] > svelte-split-pane-divider {
 		padding: calc(0.5 * var(--sp-thickness)) 0;
 		width: 100%;
 		height: 0;
 		cursor: ns-resize;
-		top: var(--pos);
+		top: clamp(var(--min), var(--pos), var(--max));
 		transform: translate(0, calc(-0.5 * var(--sp-thickness)));
 	}
 
-	.vertical > .divider.disabled {
+	[data-orientation='vertical'] > svelte-split-pane-divider.disabled {
 		cursor: default;
 	}
 
-	.vertical > .divider::after {
+	[data-orientation='vertical'] > svelte-split-pane-divider::after {
 		top: 50%;
 		left: 0;
 		width: 100%;
