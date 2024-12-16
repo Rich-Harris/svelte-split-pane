@@ -6,31 +6,30 @@
 	<header>
 		<h1>svelte-split-pane</h1>
 	</header>
+
 	<main>
 		<SplitPane type="horizontal" min="25%" max="50%" pos="50%" --color="black">
 			{#snippet a()}
-				<section style="background: palegoldenrod">
-					<SplitPane type="vertical" min="100px" max="-100px" pos="-42px">
-						{#snippet a()}
-							<section>
-								<div class="pane">
-									<p>min width 25%</p>
-									<p>min height 100px</p>
-								</div>
-							</section>
-						{/snippet}
-						{#snippet b()}
-							<section style="background: orange">
-								<!---->
-							</section>
-						{/snippet}
-					</SplitPane>
-				</section>
+				<SplitPane type="vertical" min="100px" max="-100px" pos="-42px">
+					{#snippet a()}
+						<div class="pane" style="background: palegoldenrod">
+							<p>min width 25%</p>
+							<p>min height 100px</p>
+						</div>
+					{/snippet}
+
+					{#snippet b()}
+						<div class="pane" style="background: orange">
+							<!---->
+						</div>
+					{/snippet}
+				</SplitPane>
 			{/snippet}
+
 			{#snippet b()}
-				<section style="background: teal">
+				<div class="pane" style="background: teal">
 					<!---->
-				</section>
+				</div>
 			{/snippet}
 		</SplitPane>
 	</main>

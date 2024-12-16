@@ -40,7 +40,13 @@
 		if (disabled) return;
 
 		const { top, left, width, height } = container.getBoundingClientRect();
-		pos = `${100 * (type === 'horizontal' ? (x - left) / width : (y - top) / height)}%`;
+
+		let p = type === 'horizontal' ? (x - left) / width : (y - top) / height;
+
+		if (p < 0) p = 0;
+		if (p > 1) p = 1;
+
+		pos = `${100 * p}%`;
 	}
 
 	function drag(node: HTMLElement, callback: (event: PointerEvent) => void) {
@@ -81,30 +87,30 @@
 	}
 </script>
 
-<div
+<svelte-split-pane
 	bind:this={container}
-	class="container"
 	data-pane={id}
 	data-orientation={type}
 	style="--pos: {normalize(pos)}; --min: {normalize(min)}; --max: {normalize(max)}"
 >
-	<div class="pane">
+	<svelte-split-pane-section>
 		{@render a?.()}
-	</div>
+	</svelte-split-pane-section>
 
-	<div class="pane">
+	<svelte-split-pane-section>
 		{@render b?.()}
-	</div>
+	</svelte-split-pane-section>
 
-	<div class="divider" class:disabled use:drag={(e) => update(e.clientX, e.clientY)}></div>
-</div>
+	<svelte-split-pane-divider class:disabled use:drag={(e) => update(e.clientX, e.clientY)}
+	></svelte-split-pane-divider>
+</svelte-split-pane>
 
 {#if dragging}
-	<div class="mousecatcher"></div>
+	<svelte-split-pane-mousecatcher></svelte-split-pane-mousecatcher>
 {/if}
 
 <style>
-	.container {
+	svelte-split-pane {
 		--sp-thickness: var(--thickness, 8px);
 		--sp-color: var(--color, transparent);
 		display: grid;
@@ -113,27 +119,27 @@
 		height: 100%;
 	}
 
-	.container[data-orientation='vertical'] {
+	svelte-split-pane[data-orientation='vertical'] {
 		grid-template-rows: clamp(var(--min), var(--pos), var(--max)) 1fr;
 	}
 
-	.container[data-orientation='horizontal'] {
+	svelte-split-pane[data-orientation='horizontal'] {
 		grid-template-columns: clamp(var(--min), var(--pos), var(--max)) 1fr;
 	}
 
-	.pane {
+	svelte-split-pane-section {
 		width: 100%;
 		height: 100%;
 		overflow: auto;
 	}
 
-	.pane > :global(*) {
+	svelte-split-pane-section > :global(*) {
 		width: 100%;
 		height: 100%;
 		overflow: hidden;
 	}
 
-	.mousecatcher {
+	svelte-split-pane-mousecatcher {
 		position: absolute;
 		left: 0;
 		top: 0;
@@ -142,18 +148,18 @@
 		background: rgba(255, 255, 255, 0.0001);
 	}
 
-	.divider {
+	svelte-split-pane-divider {
 		position: absolute;
 		touch-action: none !important;
 	}
 
-	.divider::after {
+	svelte-split-pane-divider::after {
 		content: '';
 		position: absolute;
 		background-color: var(--sp-color);
 	}
 
-	[data-orientation='horizontal'] > .divider {
+	[data-orientation='horizontal'] > svelte-split-pane-divider {
 		padding: 0 calc(0.5 * var(--sp-thickness));
 		width: 0;
 		height: 100%;
@@ -162,18 +168,18 @@
 		transform: translate(calc(-0.5 * var(--sp-thickness)), 0);
 	}
 
-	[data-orientation='horizontal'] > .divider.disabled {
+	[data-orientation='horizontal'] > svelte-split-pane-divider.disabled {
 		cursor: default;
 	}
 
-	[data-orientation='horizontal'] > .divider::after {
+	[data-orientation='horizontal'] > svelte-split-pane-divider::after {
 		left: 50%;
 		top: 0;
 		width: 1px;
 		height: 100%;
 	}
 
-	[data-orientation='vertical'] > .divider {
+	[data-orientation='vertical'] > svelte-split-pane-divider {
 		padding: calc(0.5 * var(--sp-thickness)) 0;
 		width: 100%;
 		height: 0;
@@ -182,11 +188,11 @@
 		transform: translate(0, calc(-0.5 * var(--sp-thickness)));
 	}
 
-	[data-orientation='vertical'] > .divider.disabled {
+	[data-orientation='vertical'] > svelte-split-pane-divider.disabled {
 		cursor: default;
 	}
 
-	[data-orientation='vertical'] > .divider::after {
+	[data-orientation='vertical'] > svelte-split-pane-divider::after {
 		top: 50%;
 		left: 0;
 		width: 100%;

@@ -1,5 +1,11 @@
 # changelog
 
+## 2.0.0
+
+- Require Svelte 5
+- Use CSS `clamp(...)` rather than constraining programmatically
+- Remove `priority` prop and `change` event
+
 ## 1.1.3
 
 - Remove `z-index` from dividers
