@@ -1,10 +1,6 @@
 <script lang="ts">
-	import { createEventDispatcher } from 'svelte';
-	import { constrain } from './utils.js';
+	import type { Snippet } from 'svelte';
 	import type { Length } from './types';
-
-	/** @type {ReturnType<typeof createEventDispatcher<{ change: undefined }>>} */
-	const dispatch = createEventDispatcher();
 
 	interface Props {
 		type: 'horizontal' | 'vertical';
@@ -13,19 +9,17 @@
 		min?: Length;
 		max?: Length;
 		disabled?: boolean;
-		priority?: 'min' | 'max';
-		a?: import('svelte').Snippet;
-		b?: import('svelte').Snippet;
+		a?: Snippet;
+		b?: Snippet;
 	}
 
 	let {
 		id = undefined,
 		type,
-		pos = '50%',
+		pos = $bindable('50%'),
 		min = '0%',
 		max = '100%',
 		disabled = false,
-		priority = 'min',
 		a,
 		b
 	}: Props = $props();
@@ -33,34 +27,20 @@
 	let container: HTMLElement;
 
 	let dragging = $state(false);
-	let w = $state(0);
-	let h = $state(0);
 
-	let position = $state<Length>(pos);
+	function normalize(length: string) {
+		if (length[0] === '-') {
+			return `calc(100% - ${length.slice(1)})`;
+		}
 
-	$inspect({ pos, position });
-
-	$effect(() => {
-		position = pos;
-	});
-
-	// constrain position
-	$effect(() => {
-		const size = type === 'horizontal' ? w : h;
-		position = constrain(container, size, min, max, position, priority);
-	});
+		return length;
+	}
 
 	function update(x: number, y: number) {
 		if (disabled) return;
 
-		const { top, left } = container.getBoundingClientRect();
-
-		const pos_px = type === 'horizontal' ? x - left : y - top;
-		const size = type === 'horizontal' ? w : h;
-
-		position = pos.endsWith('%') ? `${(100 * pos_px) / size}%` : `${pos_px}px`;
-
-		dispatch('change');
+		const { top, left, width, height } = container.getBoundingClientRect();
+		pos = `${100 * (type === 'horizontal' ? (x - left) / width : (y - top) / height)}%`;
 	}
 
 	function drag(node: HTMLElement, callback: (event: PointerEvent) => void) {
@@ -68,8 +48,9 @@
 			if (
 				(event.pointerType === 'mouse' && event.button === 2) ||
 				(event.pointerType !== 'mouse' && !event.isPrimary)
-			)
+			) {
 				return;
+			}
 
 			node.setPointerCapture(event.pointerId);
 
@@ -90,23 +71,22 @@
 			window.addEventListener('pointerup', onpointerup, false);
 		};
 
-		node.addEventListener('pointerdown', pointerdown, { capture: true, passive: false });
+		$effect(() => {
+			node.addEventListener('pointerdown', pointerdown, { capture: true, passive: false });
 
-		return {
-			destroy() {
+			return () => {
 				node.removeEventListener('pointerdown', pointerdown);
-			}
-		};
+			};
+		});
 	}
 </script>
 
 <div
-	data-pane={id}
-	class="container {type}"
 	bind:this={container}
-	bind:clientWidth={w}
-	bind:clientHeight={h}
-	style="--pos: {position}"
+	class="container"
+	data-pane={id}
+	data-orientation={type}
+	style="--pos: {normalize(pos)}; --min: {normalize(min)}; --max: {normalize(max)}"
 >
 	<div class="pane">
 		{@render a?.()}
@@ -116,9 +96,7 @@
 		{@render b?.()}
 	</div>
 
-	{#if pos !== '0%' && pos !== '100%'}
-		<div class="{type} divider" class:disabled use:drag={(e) => update(e.clientX, e.clientY)}></div>
-	{/if}
+	<div class="divider" class:disabled use:drag={(e) => update(e.clientX, e.clientY)}></div>
 </div>
 
 {#if dragging}
@@ -135,12 +113,12 @@
 		height: 100%;
 	}
 
-	.container.vertical {
-		grid-template-rows: var(--pos) 1fr;
+	.container[data-orientation='vertical'] {
+		grid-template-rows: clamp(var(--min), var(--pos), var(--max)) 1fr;
 	}
 
-	.container.horizontal {
-		grid-template-columns: var(--pos) 1fr;
+	.container[data-orientation='horizontal'] {
+		grid-template-columns: clamp(var(--min), var(--pos), var(--max)) 1fr;
 	}
 
 	.pane {
@@ -175,40 +153,40 @@
 		background-color: var(--sp-color);
 	}
 
-	.horizontal > .divider {
+	[data-orientation='horizontal'] > .divider {
 		padding: 0 calc(0.5 * var(--sp-thickness));
 		width: 0;
 		height: 100%;
 		cursor: ew-resize;
-		left: var(--pos);
+		left: clamp(var(--min), var(--pos), var(--max));
 		transform: translate(calc(-0.5 * var(--sp-thickness)), 0);
 	}
 
-	.horizontal > .divider.disabled {
+	[data-orientation='horizontal'] > .divider.disabled {
 		cursor: default;
 	}
 
-	.horizontal > .divider::after {
+	[data-orientation='horizontal'] > .divider::after {
 		left: 50%;
 		top: 0;
 		width: 1px;
 		height: 100%;
 	}
 
-	.vertical > .divider {
+	[data-orientation='vertical'] > .divider {
 		padding: calc(0.5 * var(--sp-thickness)) 0;
 		width: 100%;
 		height: 0;
 		cursor: ns-resize;
-		top: var(--pos);
+		top: clamp(var(--min), var(--pos), var(--max));
 		transform: translate(0, calc(-0.5 * var(--sp-thickness)));
 	}
 
-	.vertical > .divider.disabled {
+	[data-orientation='vertical'] > .divider.disabled {
 		cursor: default;
 	}
 
-	.vertical > .divider::after {
+	[data-orientation='vertical'] > .divider::after {
 		top: 50%;
 		left: 0;
 		width: 100%;

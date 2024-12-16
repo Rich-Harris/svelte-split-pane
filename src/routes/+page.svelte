@@ -9,37 +9,47 @@
 	<main>
 		<SplitPane type="horizontal" min="25%" max="50%" pos="50%" --color="black">
 			{#snippet a()}
-						<section  style="background: palegoldenrod">
-					<SplitPane type="vertical" min="100px" max="-100px" pos="50%">
+				<section style="background: palegoldenrod">
+					<SplitPane type="vertical" min="100px" max="-100px" pos="-42px">
 						{#snippet a()}
-										<section >
+							<section>
 								<div class="pane">
 									<p>min width 25%</p>
 									<p>min height 100px</p>
 								</div>
 							</section>
-									{/snippet}
+						{/snippet}
 						{#snippet b()}
-										<section  style="background: orange">
+							<section style="background: orange">
 								<!---->
 							</section>
-									{/snippet}
+						{/snippet}
 					</SplitPane>
 				</section>
-					{/snippet}
+			{/snippet}
 			{#snippet b()}
-						<section  style="background: teal">
+				<section style="background: teal">
 					<!---->
 				</section>
-					{/snippet}
+			{/snippet}
 		</SplitPane>
 	</main>
 </div>
 
 <style>
 	:root {
-		font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu,
-			Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+		font-family:
+			system-ui,
+			-apple-system,
+			BlinkMacSystemFont,
+			'Segoe UI',
+			Roboto,
+			Oxygen,
+			Ubuntu,
+			Cantarell,
+			'Open Sans',
+			'Helvetica Neue',
+			sans-serif;
 		margin: 0;
 	}
 
