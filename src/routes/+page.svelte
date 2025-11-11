@@ -1,5 +1,9 @@
-<script>
+<script lang="ts">
 	import SplitPane from '$lib/SplitPane.svelte';
+	import type { Length } from '$lib/types.js';
+
+	let width = $state<Length>('50%');
+	let height = $state<Length>('-100px');
 </script>
 
 <div class="demo">
@@ -8,13 +12,13 @@
 	</header>
 
 	<main>
-		<SplitPane type="horizontal" min="25%" max="50%" pos="50%" --color="black">
+		<SplitPane type="columns" min="25%" max="50%" bind:pos={width} --color="black">
 			{#snippet a()}
-				<SplitPane type="vertical" min="100px" max="-100px" pos="-42px">
+				<SplitPane type="rows" min="100px" max="-100px" bind:pos={height}>
 					{#snippet a()}
 						<div class="pane" style="background: palegoldenrod">
-							<p>min width 25%</p>
-							<p>min height 100px</p>
+							<p>width: {width}</p>
+							<p>height: {height}</p>
 						</div>
 					{/snippet}
 
