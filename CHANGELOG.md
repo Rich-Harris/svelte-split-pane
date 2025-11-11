@@ -1,5 +1,10 @@
 # changelog
 
+## 3.0.0
+
+- Change `vertical` and `horizontal` to `rows` and `columns` ([#10](https://github.com/Rich-Harris/svelte-split-pane/pull/10))
+- `pos` binding reflects constraints ([#10](https://github.com/Rich-Harris/svelte-split-pane/pull/10))
+
 ## 2.0.0
 
 - Modernise ([#8](https://github.com/Rich-Harris/svelte-split-pane/pull/8)
